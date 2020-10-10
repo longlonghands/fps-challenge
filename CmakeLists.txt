@@ -1,0 +1,68 @@
+cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
+set(TARGET arvan-challenge)
+project(${TARGET} VERSION 0.1.0 LANGUAGES CXX)
+
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
+
+set(FFMPEG_PKG_CONFIG_SUFFIX "" CACHE STRING "This suffix uses for FFmpeg component names searches by pkg-config")
+
+add_definitions(-D__STDC_CONSTANT_MACROS)
+add_definitions(-DCMAKE_CXX_FLAGS_RELWITHDEBINFO="-O3 -g")
+
+# Compiler-specific C++17 activation.
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED yes)
+
+# -pthread sets also some useful compile-time flags
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+
+# dependencies
+if (MSVC OR MINGW)
+    set(FFMPEG_CUSTOME_PATH "c:/mingw/" )
+endif(MSVC OR MINGW)
+
+find_package(FFmpeg REQUIRED)
+if(NOT TARGET FFmpeg::FFmpeg)
+  message(FATAL_ERROR, "Cannot find FFmpeg::FFmpeg target.")
+endif()
+
+include_directories(
+    ${PROJECT_SOURCE_DIR}/src
+    ${PROJECT_SOURCE_DIR}/libs/spdlog/include
+    FFmpeg::FFmpeg
+    )
+
+add_subdirectory(${PROJECT_SOURCE_DIR}/libs/spdlog)
+    
+SET(SOURCES ${SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/common/random-string.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/common/thread.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/media/ffmpeg.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/media/packet.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/media/frame.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/media/video-decoder.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/frame-counter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/packet-source-subscriber.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/packet-source.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
+    )
+
+add_definitions(-DUSE_SSE4_INSTRUCTIONS=ON) # -DUSE_SSE2_INSTRUCTIONS=ON -DUSE_SSE4_INSTRUCTIONS=ON
+
+add_executable(${TARGET} ${SOURCES} )
+
+find_package(Threads)
+target_link_libraries (
+    ${TARGET} 
+    Threads::Threads
+    spdlog::spdlog_header_only
+    FFmpeg::FFmpeg
+    )
+
+
+if (MSVC OR MINGW)
+	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+	target_link_libraries (${PROJECT_NAME} ws2_32)
+else(MSVC OR MINGW)
+	add_definitions(-DBSD=1 -DSOCKLEN_T=socklen_t -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE=1 -DUSE_SYSTEM_RANDOM)
+endif(MSVC OR MINGW)

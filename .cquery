@@ -1,0 +1,11 @@
+%clang
+%cpp -std=c++14
+-pthread
+
+# Includes
+-IC:/MinGW/x86_64-w64-mingw32/include
+-IC:/MinGW/include
+-IC:/MinGW/include/c++/9.2.0
+-Ilibs/spdlog/include
+-Isrc
+# -I space_is_not_allowed
