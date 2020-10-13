@@ -3,7 +3,10 @@
 #include <algorithm>
 
 namespace challenge { namespace media {
-   AVPacketSource::AVPacketSource() : m_isStarted(false), m_needToStop(false), m_lastPktId(0) {}
+   AVPacketSource::AVPacketSource()
+      : m_isStarted(false)
+      , m_needToStop(false)
+      , m_lastPktId(0) {}
 
    bool AVPacketSource::Start(std::string url) {
       m_uri = url;
@@ -22,11 +25,11 @@ namespace challenge { namespace media {
          }
          video_stream_idx = av_find_best_stream(m_fmtCtx, AVMEDIA_TYPE_VIDEO, -1, -1, NULL, 0);
          if (video_stream_idx >= 0) {
-            spdlog::info("found video stream");
+            spdlog::info("found video stream: {}", video_stream_idx);
          }
          audio_stream_idx = av_find_best_stream(m_fmtCtx, AVMEDIA_TYPE_AUDIO, -1, -1, NULL, 0);
          if (audio_stream_idx >= 0) {
-            spdlog::info("found audio stream");
+            spdlog::info("found audio stream: {}", audio_stream_idx);
          }
          for (auto& sub : m_PacketSubscribers) {
             if (sub) {

@@ -1,6 +1,7 @@
 #include "packet-source-subscriber.hpp"
 #include "common/random-string.hpp"
 #include "packet-source.hpp"
+#include <spdlog/spdlog.h>
 
 namespace challenge { namespace media {
    PacketSourceSubscriber::PacketSourceSubscriber(int queueSize)

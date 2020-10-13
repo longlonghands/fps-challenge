@@ -11,7 +11,8 @@ namespace challenge { namespace media {
       , m_fps(0.0)
       , m_frameCounts(-1)
       , m_lastFrameTime(0)
-      , m_currentDuration(0) {}
+      , m_currentDuration(0)
+      , m_isStarted(false) {}
 
    FrameCounter::~FrameCounter() {}
 
@@ -31,6 +32,7 @@ namespace challenge { namespace media {
          return;
       }
       if (!m_decoder.IsInitiated()) {
+         spdlog::info("initializing the decoder failed");
          return;
       }
       m_needToStop = false;
@@ -46,6 +48,7 @@ namespace challenge { namespace media {
 
    void FrameCounter::readLoop() {
       m_isStarted = true;
+      spdlog::info("fps counter started");
       while (!m_needToStop) {
          auto pkt = ReadPacket();
          if (!pkt) {
